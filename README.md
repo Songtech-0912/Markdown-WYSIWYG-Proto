@@ -18,3 +18,4 @@ The main obstacle is to prevent the cursor from always jumping to the start of t
 ## Future Optimizations
 
 * Only run `render()` when the current line matches the bold markdown regex to improve performance, instead of every `keydown` event
+* Handle multiple replacements (the current `setCursorPosition()` function doesn't work so well once there are multiple replacements) - reference CodeJar's highlighting implementation for this and [pocket editor](https://codepen.io/aziis98/pen/vYOMvex)
