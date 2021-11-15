@@ -1,90 +1,77 @@
 "use strict";
 
-const bold_regex = /\*\*(.*)\*\*/gim;
-const bold_html = `<strong>$1<strong>`
+const bold_regex = /\*\*(.+?)\*\*/gmi;
+const bold_html = "**<strong>$1</strong>**";
 
 function $get(el) {
     return document.getElementById(el);
 }
 
-// function getPosition() {
-//     let sel = window.getSelection();
-//     if (sel.getRangeAt) {
-//         return sel.getRangeAt(0).startOffset;
-//     }
-// 
-// }
-
-function getPosition(editableDiv) {
-    let caretPos = 0;
-    let sel = window.getSelection();
-
-    if (sel.rangeCount) {
-        let range = sel.getRangeAt(0);
-        if (range.commonAncestorContainer.parentNode == editableDiv) {
-            caretPos = range.endOffset;
-        }
-    }
-    return caretPos;
+// This function rose from black magic
+// from the dark arts of the wizard Zserge,
+// consulted by the ancient ocultic texts
+// from https://zserge.com/posts/js-editor/
+function getCursorPosition(el) {
+  const range = window.getSelection().getRangeAt(0);
+  const prefix = range.cloneRange();
+  prefix.selectNodeContents(el);
+  prefix.setEnd(range.endContainer, range.endOffset);
+  return prefix.toString().length;
 }
 
-function createRange(node, chars, range) {
-    if (!range) {
-        range = document.createRange()
-        range.selectNode(node);
-        range.setStart(node, 0);
+// This function rose from black magic
+// from the dark arts of the wizard Zserge,
+// consulted by the ancient ocultic texts
+// from https://zserge.com/posts/js-editor/
+function setCursorPosition(pos, parent) {
+  for (const node of parent.childNodes) {
+    if (node.nodeType == Node.TEXT_NODE) {
+      if (node.length >= pos) {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.setStart(node, pos);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        return -1;
+      } else {
+        pos = pos - node.length;
+      }
+    } else {
+      pos = setCursorPosition(pos, node);
+      if (pos < 0) {
+        return pos;
+      }
     }
+  }
+  return pos;
+}
 
-    if (chars.count === 0) {
-        range.setEnd(node, chars.count);
-    } else if (node && chars.count > 0) {
-        if (node.nodeType === Node.TEXT_NODE) {
-            if (node.textContent.length < chars.count) {
-                chars.count -= node.textContent.length;
-            } else {
-                range.setEnd(node, chars.count);
-                chars.count = 0;
-            }
-        } else {
-            for (var lp = 0; lp < node.childNodes.length; lp++) {
-                range = createRange(node.childNodes[lp], chars, range);
+/*
+  The current issue is that for some reason, the regex replace likes to
+  add a new line every time the regex is run.
 
-                if (chars.count === 0) {
-                    break;
-                }
-            }
-        }
+  This messes up the highlighting.
+*/
+
+function debug() {
+  console.log($get("app").innerText);
+}
+
+function render(el) {
+  let newstr = el.innerText.replace(bold_regex, bold_html);
+  el.innerHTML = newstr;
+}
+
+$get("app").addEventListener("keyup", function(event) {
+    if (app.innerText.match(bold_regex)) {
+        // let caret = new VanillaCaret($get("app"));
+        // const caretPosition = caret.getPos();
+        let caretPosition = getCursorPosition($get("app"))
+        console.log(caretPosition)
+        render(el)
+        setCursorPosition(caretPosition, $get("app"))
+    } else {
+        console.log("Not invoked.")
     }
-
-    return range;
-};
-
-function setCursor(chars, textContainer) {
-    if (chars >= 0) {
-        let selection = window.getSelection();
-        let range = createRange(textContainer.parentNode, {
-            count: chars
-        });
-
-        if (range) {
-            range.collapse(false);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-    }
-};
-
-app = $get("app");
-
-app.addEventListener("keydown", function(event) {
-    // Make enter key work - it's broken right now
-    // if (event.key === "Enter") {
-    //     document.execCommand("insertLineBreak");
-    //     event.preventDefault();
-    // }
-    const caretPosition = getPosition($get("app"));
-    console.log(caretPosition)
-    // let newstr = app.innerText.replace(bold_regex, bold_html);
-    // app.innerHTML = newstr;
-    // setCursor(caretPosition, $get("app"))
 })
