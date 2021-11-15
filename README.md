@@ -1,4 +1,4 @@
-# Markdown Convert
+# Markdown WYSIWYG Prototype
 
 This is a proof of concept demonstrating a principle that is incredibly simple:
 
