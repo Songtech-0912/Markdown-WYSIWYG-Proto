@@ -7,18 +7,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
     <!--Fake favicon to trick devtools into not showing a favicon missing error-->
-  <link rel="icon" href="data:,">
+    <link rel="icon" href="data:,">
     <title>Markdown WYSIWYG MVP</title>
 </head>
 
 <body>
     <main>
         <h1>Markdown WYSIWYG Prototype</h1>
-        <div id="app" contenteditable>Write something...</div>
+        <div id="app" contenteditable="true" spellcheck="false">
+            <div># Heading 1</div>
+            <div></div>
+            <div>This editor supports **bolded** text and text in _italics_. There are also `code` blocks. That's about all the markdown it supports.</div>
+            <div>Now, unfortunately, the cursor behavior is not as good as I wish it to be. But it works pretty well for now!</div>
+            <div>Keep writing...</div>
+        </div>
     </main>
 </body>
 
-<!-- <script src="https://cdn.jsdelivr.net/npm/vanilla-caret-js@1.0.1/dist/VanillaCaret.min.js"></script> -->
 <script src="index.js"></script>
 
 </html>
